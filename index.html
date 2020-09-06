@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <title>Document</title>
+</head>
+<body>
+  <form class="text-center m-3">
+    <input type="text">
+    <button class="bg-success">Add</button>
+  </form>
+  <div class="d-flex justify-content-around">
+    <div class="todo border border-yellow rounded bg-danger" style="width: 33.3%">
+      <h2>Todo</h2>
+      <div class="todo-body">
+      </div>
+    </div>
+    <div class="in-progress border border-yellow rounded bg-warning" style="width: 33.3%">
+      <h2>in-progress</h2>
+      <div class="in-progress-body">
+      </div>
+    </div>
+    <div class="done border border-yellow rounded bg-success" style="width: 33.3%">
+      <h2>done</h2>
+      <div class="done-body">
+      </div>
+    </div>
+  </div>
+<!--  <script src="jquery-3.3.1.js"></script>-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    var getFromStorage = function(list){
+      var data = localStorage.getItem(list);
+      try{
+        return JSON.parse(data)
+      } catch(err){
+         console.log(err);
+         return []
+      }
+
+    };
+
+
+    var createTask = function(text, list) {
+      var card = $('<div class="card">');
+      var cardBody = $('<div class="card-body">');
+      var cardHeader = $('<div class="cardHeader d-flex justify-content-between align-items-start">');
+      var cardText = $('<p class="card-text"></p>').text(text);
+      var removeBtn = $('<a href="#" class="btn btn-primary removeBtn">X</a>');
+      var nextBtn = $('<a href="#" class="btn btn-primary next">Next</a>');
+      cardHeader.append(cardText, removeBtn);
+      cardBody.append(cardHeader, nextBtn);
+      card.append(cardBody);
+      var i = 0;
+
+      nextBtn.on("click", function(e){
+        e.preventDefault();
+        i++;
+        if (i < 3) {
+          card.appendTo(lists[i]);
+          if (i === 1) {
+            inProgressTasks.push(text);
+            // todoTasks.removeItem()
+
+            var inProgressTasksAsString = JSON.stringify(inProgressTasks);
+            localStorage.setItem("inProgressTasks", inProgressTasksAsString);
+
+            $(this).text("Done");
+          } else if (i === 2) {
+            doneTasks.push(text);
+
+            var doneTasksAsString = JSON.stringify(doneTasks);
+            localStorage.setItem("doneTasks", doneTasksAsString);
+
+            $(this).text("Delete");
+            $(this).on("click", function(){
+              e.preventDefault();
+              card.remove();
+            })
+          }   
+        }
+      });
+
+      list.prepend(card);
+
+      removeBtn.on("click", function(e){
+        e.preventDefault();
+        card.remove();
+      });
+    }
+
+    var todo = $(".todo-body");
+    var inProgress = $(".in-progress-body");
+    var done = $(".done-body");
+
+    var add = $("button");
+    var input = $("input");
+
+    
+    // var todoTasks = JSON.parse(localStorage.getItem("todoTasks")) || [];
+    // var inProgressTasks = JSON.parse(localStorage.getItem("inProgressTasks")) || [];
+    // var doneTasks = JSON.parse(localStorage.getItem("doneTasks")) || [];
+    var todoTasks = getFromStorage("todoTasks");
+    var inProgressTasks = getFromStorage("inProgressTasks");
+    var doneTasks = getFromStorage("doneTasks");
+    var lists = [todo, inProgress, done];
+
+    for(var task of todoTasks){
+      createTask(task, todo);
+    }
+    for(var trask of inProgressTasks){
+      createTask(trask, inProgress);
+    }
+    for(var tdask of doneTasks){
+      createTask(tdask, done);
+    }
+
+    add.on("click", function(e) {
+      var task = input.val();
+      if(task !== "") {
+        e.preventDefault();
+        todoTasks.push(task);
+
+        var todoTasksAsString = JSON.stringify(todoTasks); //в функцию
+        localStorage.setItem("todoTasks", todoTasksAsString);
+
+        createTask(task, todo);
+      }
+    });
+    // localStorage.clear();
+
+
+
+
+
+  </script>
+</body>
+</html>
